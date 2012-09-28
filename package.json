@@ -1,6 +1,6 @@
 {
   "name": "falkor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "keywords": [
     "javascript",
     "nodeunit",
@@ -29,14 +29,14 @@
     {
       "name": "Dan Pupius",
       "email": "dan@obvious.com",
-      "web": "http://pupius.vo.uk/"
+      "web": "http://pupius.co.uk/"
     }
   ],
   "engine": {
     "node": "*"
   },
   "scripts": {
-    "test": "node_modules/.bin/nodeunit tests/falkor_test.js"
+    "test": "./node_modules/.bin/nodeunit ./tests/falkor_test.js"
   },
   "dependencies": {
     "nock": "0.13.4",
