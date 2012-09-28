@@ -19,6 +19,9 @@ var falkor = require('../lib/falkor')
 
 // Mocks out HTTP library.  See https://github.com/flatiron/nock
 var nock = require('nock')
+var path = require('path')
+
+var testJsonSchemaPath = path.join(__dirname, 'test.schema.json')
 
 
 // Tear down after every test.
@@ -35,21 +38,15 @@ exports.testBasicFunctionality = falkor.fetch('http://www.google.com/')
 
 // Tests that a failed request correctly propagates the failure and doesn't lead to a test success.
 exports.testRequestFailures = function (test) {
-  var mockTest = newMockTest(function (assertions) {
-    if (assertions.length != 1) test.fail('There should have been one assertion.')
-    else if (assertions[0].type != 'fail') test.fail('Assertion should have been a "fail".')
-    test.done()
-  })
-
+  var mockTest = newMockTestWithExpectedFailure(test, 'Request should have failed.')
   var testFn = falkor.fetch('http://www.xtz.comx')
-
   testFn(mockTest)
 }
 
 
 // Tests that calling 'withMethod' actually changes the HTTP Method of the generated request.
 exports.testWithMethod = function (test) {
-  var mockTest = newMockTestWithNoAssetions(test)
+  var mockTest = newMockTestWithNoAssertions(test)
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .post('/testmethod', '')
@@ -64,7 +61,7 @@ exports.testWithMethod = function (test) {
 
 // Tests that headers can be set on the request.
 exports.testSettingHeaders = function (test) {
-  var mockTest = newMockTestWithNoAssetions(test)
+  var mockTest = newMockTestWithNoAssertions(test)
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Test-Header', 'value')
@@ -80,7 +77,7 @@ exports.testSettingHeaders = function (test) {
 
 // Tests that the request payload is sent with the request.
 exports.testWithPayload = function (test) {
-  var mockTest = newMockTestWithNoAssetions(test)
+  var mockTest = newMockTestWithNoAssertions(test)
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .post('/testpayload', 'this is a test')
@@ -96,7 +93,7 @@ exports.testWithPayload = function (test) {
 
 // Tests that form encoded data is correctly escaped and the header is set.
 exports.testWithFormEncodedPayload = function (test) {
-  var mockTest = newMockTestWithNoAssetions(test)
+  var mockTest = newMockTestWithNoAssertions(test)
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
@@ -113,7 +110,7 @@ exports.testWithFormEncodedPayload = function (test) {
 
 // Tests that json data is correctly serialized and the header is set.
 exports.testWithJsonPayload = function (test) {
-  var mockTest = newMockTestWithNoAssetions(test)
+  var mockTest = newMockTestWithNoAssertions(test)
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Content-Type', 'application/json')
@@ -132,7 +129,7 @@ exports.testWithJsonPayload = function (test) {
 exports.testSetCookie = function (test) {
   var testDate = new Date('2012/12/12 12:12:12') // My bday!
 
-  var mockTest = newMockTestWithNoAssetions(test)
+  var mockTest = newMockTestWithNoAssertions(test)
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Cookie', 'one=111; two=another-cookie; three=xxx')
       .get('/cookies')
@@ -252,6 +249,51 @@ exports.testExpectBodyMatches_successCase = function (test) {
 }
 
 
+// Tests that invalid JSON throws a failure.
+exports.testJsonSchemaValidation_badJson = function (test) {
+  var mockTest = newMockTestWithExpectedFailure(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/jsonschema')
+      .reply(200, '{Not: "real json"}'))
+
+  new falkor.TestCase('http://falkor.fake/jsonschema')
+      .setAsserter(mockTest)
+      .validateJson(testJsonSchemaPath)
+      .run()
+}
+
+
+// Tests that JSON that doesn't match the JSON schema fails..
+exports.testJsonSchemaValidation_badStructure = function (test) {
+  var mockTest = newMockTestWithExpectedFailure(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/jsonschema')
+      .reply(200, '{"Not": "does not match schema"}'))
+
+  new falkor.TestCase('http://falkor.fake/jsonschema')
+      .setAsserter(mockTest)
+      .validateJson(testJsonSchemaPath)
+      .run()
+}
+
+
+// Tests that JSON matching the schema passes.
+exports.testJsonSchemaValidation_success = function (test) {
+  var mockTest = newMockTestWithNoAssertions(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/jsonschema')
+      .reply(200, '{"id": 123, "title": "Test Item", "content": "Test Content"}'))
+
+  new falkor.TestCase('http://falkor.fake/jsonschema')
+      .setAsserter(mockTest)
+      .validateJson(testJsonSchemaPath)
+      .run()
+}
+
+
 // Creates a mock test object that records the assertions that were executed on it.
 function newMockTest(callback) {
   var assertions = []
@@ -279,9 +321,20 @@ function newMockTest(callback) {
 
 
 // Returns a mock test object that expects no assertions to be fired.
-function newMockTestWithNoAssetions(test) {
+function newMockTestWithNoAssertions(test) {
   return newMockTest(function (assertions) {
-    test.equals(0, assertions.length, 'There should have been no assertions')
+    if (assertions.length > 0) {
+      test.fail('There should have been no assertions: ' + assertions[0].msg)
+    }
+    test.done()
+  })
+}
+
+
+function newMockTestWithExpectedFailure(test, msg) {
+  return newMockTest(function (assertions) {
+    test.equals(1, assertions.length, 'There should have been one assertion')
+    test.equals('fail', assertions[0].type, msg)
     test.done()
   })
 }
