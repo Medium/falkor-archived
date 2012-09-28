@@ -35,8 +35,12 @@
   "engine": {
     "node": "*"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "node_modules/.bin/nodeunit tests/falkor_test.js"
+  },
   "dependencies": {
+    "nock": "0.13.4",
+    "nodeunit": "0.7.4"
   }
   , "main": "lib/falkor.js"
 }
