@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "nock": "0.13.4",
-    "nodeunit": "0.7.4"
+    "nodeunit": "0.7.4",
+    "pipette": "0.9.0"
   }
   , "main": "lib/falkor.js"
 }

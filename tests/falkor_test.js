@@ -128,6 +128,25 @@ exports.testWithJsonPayload = function (test) {
 }
 
 
+// Tests that cookies can be set on the request.
+exports.testSetCookie = function (test) {
+  var testDate = new Date('2012/12/12 12:12:12') // My bday!
+
+  var mockTest = newMockTestWithNoAssetions(test)
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .matchHeader('Cookie', 'one=111; two=another-cookie; three=xxx')
+      .get('/cookies')
+      .reply(200, {data: ''}))
+
+  new falkor.TestCase('http://falkor.fake/cookies')
+      .withCookie('one', 111, {httpOnly: true})
+      .withCookie('two', 'another-cookie', {secure: true})
+      .withCookie('three', 'xxx', {expires: testDate.getTime(), path: '/cookies'})
+      .setAsserter(mockTest)
+      .run()
+}
+
+
 // Creates a mock test object.
 function newMockTest(callback) {
   var assertions = []
