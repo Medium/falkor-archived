@@ -222,6 +222,36 @@ exports.testExpectContentType = function (test) {
 }
 
 
+// Tests that a reg exp expectation correctly fires the assertion with false if it doens't exist.
+exports.testExpectBodyMatches_failureCase = function (test) {
+  var mockTest = newMockTestWithSingleOkAssertion(test, false, 'Body should not have matched regex')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/bodymatching')
+      .reply(200, 'this is the response'))
+
+  new falkor.TestCase('http://falkor.fake/bodymatching')
+      .setAsserter(mockTest)
+      .expectBodyMatches(/fish and chips/)
+      .run()
+}
+
+
+// Tests that a regexp expectation correctly matches the content if it exists.
+exports.testExpectBodyMatches_successCase = function (test) {
+  var mockTest = newMockTestWithSingleOkAssertion(test, true, 'Body should have matched regex')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/bodymatching')
+      .reply(200, 'this is the response with fish and chips'))
+
+  new falkor.TestCase('http://falkor.fake/bodymatching')
+      .setAsserter(mockTest)
+      .expectBodyMatches(/fish and chips/)
+      .run()
+}
+
+
 // Creates a mock test object that records the assertions that were executed on it.
 function newMockTest(callback) {
   var assertions = []
@@ -263,5 +293,13 @@ function newMockTestWithSingleEqualsAssertion(test, value, msg) {
     test.equals(value, assertions[0].value, msg)
     test.done()
   })
+}
 
+
+function newMockTestWithSingleOkAssertion(test, value, msg) {
+  return newMockTest(function (assertions) {
+    test.equals(1, assertions.length, 'There should have been one assertion')
+    test.equals(String(value), assertions[0].value, msg)
+    test.done()
+  })
 }
