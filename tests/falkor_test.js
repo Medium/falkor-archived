@@ -147,6 +147,31 @@ exports.testSetCookie = function (test) {
 }
 
 
+// Tests that evaluators are called and their assertions are recorded.
+exports.testBasicEvaluators = function (test) {
+  var mockTest = newMockTest(function (assertions) {
+    test.equals(2, assertions.length, 'There should have been two assertions')
+    test.equals('1=1', assertions[0].value, 'First assertion should have compared 1 to 1')
+    test.equals('true', assertions[1].value, 'Second assertion should just check for true')
+    test.done()
+  })
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/evaluators')
+      .reply(200, {data: ''}))
+
+  new falkor.TestCase('http://falkor.fake/evaluators')
+      .setAsserter(mockTest)
+      .evaluate(function (mockTest, res) {
+        mockTest.equals(1, 1, 'Just testing assertions')
+      })
+      .evaluate(function (mockTest, res) {
+        mockTest.ok(!!res, 'Response should exist')
+      })
+      .run()
+}
+
+
 // Creates a mock test object.
 function newMockTest(callback) {
   var assertions = []
@@ -154,6 +179,12 @@ function newMockTest(callback) {
   return {
     verifyResponse: function (resp) {
       mockResponse = resp
+    },
+    ok: function (value, msg) {
+      assertions.push({type: 'ok', value: String(value), msg: msg})
+    },
+    equals: function (a, b, msg) {
+      assertions.push({type: 'equals', value: a + '=' + b, msg: msg})
     },
     fail: function (msg) {
       assertions.push({type: 'fail', msg: msg})
