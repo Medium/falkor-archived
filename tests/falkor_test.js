@@ -53,7 +53,7 @@ exports.testWithMethod = function (test) {
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .post('/testmethod', '')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/testmethod')
       .withMethod('POST')
@@ -69,7 +69,7 @@ exports.testSettingHeaders = function (test) {
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Test-Header', 'value')
       .get('/testheaders')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/testheaders')
       .withHeader('Test-Header', 'value')
@@ -84,7 +84,7 @@ exports.testWithPayload = function (test) {
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .post('/testpayload', 'this is a test')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/testpayload')
       .withMethod('POST')
@@ -101,7 +101,7 @@ exports.testWithFormEncodedPayload = function (test) {
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
       .post('/testformencoded', 'a=%3D%26&b=xxx')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/testformencoded')
       .withMethod('POST')
@@ -118,7 +118,7 @@ exports.testWithJsonPayload = function (test) {
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Content-Type', 'application/json')
       .post('/testjson', '{"a":123,"b":"c"}')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/testjson')
       .withMethod('POST')
@@ -136,7 +136,7 @@ exports.testSetCookie = function (test) {
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Cookie', 'one=111; two=another-cookie; three=xxx')
       .get('/cookies')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/cookies')
       .withCookie('one', 111, {httpOnly: true})
@@ -158,7 +158,7 @@ exports.testBasicEvaluators = function (test) {
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .get('/evaluators')
-      .reply(200, {data: ''}))
+      .reply(200, ''))
 
   new falkor.TestCase('http://falkor.fake/evaluators')
       .setAsserter(mockTest)
@@ -172,7 +172,57 @@ exports.testBasicEvaluators = function (test) {
 }
 
 
-// Creates a mock test object.
+// Tests that adding the expectStatusCode evaluator asserts the response has the right status code.
+exports.testExpectStatusCode = function (test) {
+  var mockTest = newMockTestWithSingleEqualsAssertion(
+    test, '403=401', 'Assertion should have compared status codes')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/status')
+      .reply(403, ''))
+
+  new falkor.TestCase('http://falkor.fake/status')
+      .setAsserter(mockTest)
+      .expectStatusCode(401)
+      .run()
+}
+
+
+// Tests that adding the expectHeader evaluator asserts the response has the right headers.
+exports.testExpectHeader = function (test) {
+  var mockTest = newMockTestWithSingleEqualsAssertion(
+    test, 'FakeServer=Apache', 'Assertion should have compared headers')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/headers')
+      .reply(200, '', {'Server': 'FakeServer'}))
+
+  new falkor.TestCase('http://falkor.fake/headers')
+      .setAsserter(mockTest)
+      .expectHeader('Server', 'Apache')
+      .run()
+}
+
+
+// Tests that adding content type expectations matches header properly..
+exports.testExpectContentType = function (test) {
+  var ct = 'text/gibberish; charset=exotic'
+
+  var mockTest = newMockTestWithSingleEqualsAssertion(
+    test, ct + '=' + ct, 'Assertion should check the content type')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/contenttype')
+      .reply(200, '', {'Content-Type': ct}))
+
+  new falkor.TestCase('http://falkor.fake/contenttype')
+      .setAsserter(mockTest)
+      .expectContentType('text/gibberish', 'exotic')
+      .run()
+}
+
+
+// Creates a mock test object that records the assertions that were executed on it.
 function newMockTest(callback) {
   var assertions = []
   var mockResponse = null
@@ -204,4 +254,14 @@ function newMockTestWithNoAssetions(test) {
     test.equals(0, assertions.length, 'There should have been no assertions')
     test.done()
   })
+}
+
+
+function newMockTestWithSingleEqualsAssertion(test, value, msg) {
+  return newMockTest(function (assertions) {
+    test.equals(1, assertions.length, 'There should have been one assertion')
+    test.equals(value, assertions[0].value, msg)
+    test.done()
+  })
+
 }
