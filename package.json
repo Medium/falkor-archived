@@ -1,0 +1,47 @@
+{
+  "name": "falkor",
+  "version": "0.0.2",
+  "keywords": [
+    "javascript",
+    "nodeunit",
+    "http",
+    "test",
+    "functional"
+  ],
+  "description": "HTTP Level Functional Testing Library",
+  "homepage": "https://github.com/Obvious/falkor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Obvious/falkor.git"
+  },
+  "licenses": [
+    {
+      "type": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  ],
+  "author": {
+    "name": "Dan Pupius",
+    "email": "dan@obvious.com",
+    "url": "http://pupius.co.uk/"
+  },
+  "maintainers": [
+    {
+      "name": "Dan Pupius",
+      "email": "dan@obvious.com",
+      "web": "http://pupius.co.uk/"
+    }
+  ],
+  "engine": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/nodeunit ./tests/falkor_test.js"
+  },
+  "dependencies": {
+    "nock": "0.13.4",
+    "nodeunit": "0.7.4",
+    "pipette": "0.9.0"
+  }
+  , "main": "lib/falkor.js"
+}
