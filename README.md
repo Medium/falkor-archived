@@ -50,6 +50,12 @@ nodeunit mytest.js
 
 See the `examples` folder for a few other examples.
 
+Changes
+-------
+
+Head on over to the wiki to see [what changed](https://github.com/Obvious/falkor/wiki/Change-Log)
+between NPM package versions.
+
 Reference
 ---------
 
