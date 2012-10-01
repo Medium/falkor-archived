@@ -1,0 +1,21 @@
+{
+ "name": "Test Item",
+ "type": "object",
+ "properties": {
+   "id": {
+     "type": "number",
+     "description": "Item identifier",
+     "required": true
+   },
+   "title": {
+     "description": "Item's title",
+     "type": "string",
+     "required": true
+   },
+   "content": {
+     "description": "The item's description.",
+     "type":  "string",
+     "required": true
+   }
+ }
+}
