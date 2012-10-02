@@ -191,6 +191,16 @@ new falkor.TestCase(url)
     .run()
 ```
 
+#### falkor.setBaseUrl(url)
+
+Sets the base URL from which other URLs are resolved.  This still allows you to specify absolute
+URLs in specific test methods but relative URLs will be resolved accordingly.
+
+#### falkor.setRootSchemaPath(path)
+
+Sets the base path for where schemas should be resolved from.  e.g. to avoid having to specify
+`path.join(__dirname, 'some-schema.json')` repeatedly.
+
 ### Node unit quick reference
 
 Especially helpful if you are writing your own evaluator functions or asserter:
@@ -207,7 +217,6 @@ throws(block, [error], [message]) - Expects block to throw an error.
 doesNotThrow(block, [error], [message]) - Expects block not to throw an error.
 ifError(value) - Tests if value is not a false value, throws if it is a true value.
 ```
-
 
 Testing
 -------

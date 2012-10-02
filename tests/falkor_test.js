@@ -26,6 +26,8 @@ var testJsonSchemaPath = path.join(__dirname, 'test.schema.json')
 
 // Tear down after every test.
 exports.tearDown = function (done) {
+  falkor.setBaseUrl('')
+  falkor.setRootSchemaPath('')
   nock.cleanAll()
   done()
 }
@@ -290,6 +292,20 @@ exports.testJsonSchemaValidation_success = function (test) {
   new falkor.TestCase('http://falkor.fake/jsonschema')
       .setAsserter(mockTest)
       .validateJson(testJsonSchemaPath)
+      .run()
+}
+
+
+exports.testBaseUrl = function (test) {
+  var mockTest = newMockTestWithNoAssertions(test)
+
+  mockTest.verifyResponse(nock('http://some.other.url.com')
+      .get('/base/url')
+      .reply(200, ''))
+
+  falkor.setBaseUrl('http://some.other.url.com/')
+  new falkor.TestCase('/base/url')
+      .setAsserter(mockTest)
       .run()
 }
 
