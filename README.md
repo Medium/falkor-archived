@@ -201,6 +201,27 @@ URLs in specific test methods but relative URLs will be resolved accordingly.
 Sets the base path for where schemas should be resolved from.  e.g. to avoid having to specify
 `path.join(__dirname, 'some-schema.json')` repeatedly.
 
+#### falkor.newTestTemplate()
+
+A Test Template allows you to set up a set of configuration options and expectations that can then
+be shared by multiple test cases.  Instead of calling `falkor.fetch(url)` to generate a test case
+you call `template.fetch(url)` and the test case will inherit options from the template.
+
+Example:
+
+```
+var formTest = falkor.newTestTemplate()
+    .withMethod('POST')
+    .withFormEncodedPayload(frmData)
+
+exports.testFormRequiresLogin_noCookies = formTest.fetch('/form')
+    .expectStatusCode(401)
+
+exports.testFormRequiresLogin_withCookies = formTest.fetch('/form')
+    .withCookie('auth_token', 'abce114f')
+    .expectStatusCode(200)
+```
+
 ### Node unit quick reference
 
 Especially helpful if you are writing your own evaluator functions or asserter:
