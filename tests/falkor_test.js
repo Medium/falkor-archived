@@ -310,6 +310,71 @@ exports.testBaseUrl = function (test) {
 }
 
 
+exports.testTemplates = function (test) {
+  var template = falkor.newTestTemplate()
+      .withMethod('put')
+      .withHeader('TestHeader', '1234')
+      .withPayload('data')
+      .withCookie('username', 'dan')
+      .expectXssiPrefix('prefix')
+      .expectBodyMatches(/result/)
+
+  var mockTest = newMockTest(function (assertions) {
+    test.equals(2, assertions.length, 'There should have been two assertions')
+    test.equals('prefix=prefix', assertions[0].value, 'First assertion should have checked prefix')
+    test.equals('ok', assertions[1].type, '2nd assertion should have been "ok"')
+    test.equals('true', assertions[1].value, '2nd assertion should have been matched "true"')
+    test.done()
+  })
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .put('/templated', 'data')
+      .matchHeader('Cookie', 'username=dan')
+      .matchHeader('TestHeader', '1234')
+      .reply(200, 'prefix result'))
+
+  template.newTestCase('http://falkor.fake/templated')
+      .setAsserter(mockTest)
+      .run()
+}
+
+
+exports.testTemplateOverrides = function (test) {
+  var template = falkor.newTestTemplate()
+      .withMethod('POST')
+      .withHeader('TestHeader', '1234')
+      .withPayload('data')
+      .withCookie('username', 'dan')
+
+  var results = []
+  var mockTest = newMockTest(function (assertions) {
+    results.push(assertions)
+    if (results.length == 2) test.done()
+  })
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .post('/templated', 'data')
+      .matchHeader('TestHeader', '1234')
+      .reply(200, ''))
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .post('/templated', 'data override')
+      .matchHeader('TestHeader', '9876')
+      .reply(200, ''))
+
+
+  template.newTestCase('http://falkor.fake/templated')
+      .setAsserter(mockTest)
+      .run()
+
+  template.newTestCase('http://falkor.fake/templated')
+      .withHeader('TestHeader', '9876')
+      .withPayload('data override')
+      .setAsserter(mockTest)
+      .run()
+}
+
+
 // Creates a mock test object that records the assertions that were executed on it.
 function newMockTest(callback) {
   var assertions = []
