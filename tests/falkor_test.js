@@ -251,6 +251,36 @@ exports.testExpectBodyMatches_successCase = function (test) {
 }
 
 
+// Tests that regexp matching correctly fails if the regexp matches
+exports.testExpectBodyDoesNotMatch_failureCase = function (test) {
+  var mockTest = newMockTestWithSingleOkAssertion(test, false, 'Body should not have matched regex')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/bodymatching')
+      .reply(200, 'this is the response'))
+
+  new falkor.TestCase('http://falkor.fake/bodymatching')
+      .setAsserter(mockTest)
+      .expectBodyDoesNotMatch(/the/)
+      .run()
+}
+
+
+// Tests that regexp matching correctly passes if the regexp does not matches
+exports.testExpectBodyDoesNotMatch_successCase = function (test) {
+  var mockTest = newMockTestWithSingleOkAssertion(test, true, 'Body should not have matched regex')
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/bodymatching')
+      .reply(200, 'this is the response'))
+
+  new falkor.TestCase('http://falkor.fake/bodymatching')
+      .setAsserter(mockTest)
+      .expectBodyDoesNotMatch(/fish and chips/)
+      .run()
+}
+
+
 // Tests that invalid JSON throws a failure.
 exports.testJsonSchemaValidation_badJson = function (test) {
   var mockTest = newMockTestWithExpectedFailure(test)
