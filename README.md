@@ -141,7 +141,11 @@ Same as `expectJson` but expects the charset to be set as well, defaults to want
 
 #### .expectBodyMatches(regExp)
 
-Fails the test if the response body doesn't match the provided regular expression.
+Fails the test if the response body *doesn't* match the provided regular expression.
+
+#### .expectBodyDoesNotMatch(regExp)
+
+Fails the test if the response body *does* match the provided regular expression.
 
 #### .expectXssiPrefix(prefix)
 
