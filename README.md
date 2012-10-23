@@ -152,11 +152,21 @@ Fails the test if the response body *does* match the provided regular expression
 Fails the test if the response body doesn't begin with the provided XSSI prefix. The prefix will
 also be stripped before the response body is parsed as JSON.
 
+#### .addJsonSchema(schemaPath)
+
+Adds a JSON schema (or an array of JSON schema) to be used later by validateJsonById(). This method
+is also useful for adding schema which are referenced by the main schema being validated in
+validateJson(). Every schema added using this method needs to have an id property.
+
 #### .validateJson(schemaPath)
 
 Validates the response body against a JSON schema.  The validator is taken from the Chromium project
 and implements a subset of the official spec.  See the file header in lib/json-schema/json-schema.js
 for exact details on what is supported.
+
+#### .validateJsonById(schemaId)
+
+Same as validateJson, but looks up a schema that was added earlier using addJsonSchema().
 
 #### .evaluate(fn)
 
