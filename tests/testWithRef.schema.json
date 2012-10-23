@@ -1,0 +1,13 @@
+{
+ "name": "Test Item With Ref",
+ "type": "object",
+ "properties": {
+   "id": {
+     "type": "number",
+     "description": "Item identifier",
+     "required": true
+   },
+   "title": { "$ref": "title" },
+   "content": { "$ref": "content" }
+ }
+}
