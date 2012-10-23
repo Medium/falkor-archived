@@ -22,6 +22,8 @@ var nock = require('nock')
 var path = require('path')
 
 var testJsonSchemaPath = path.join(__dirname, 'test.schema.json')
+var testJsonSchemaPathToLoad = path.join(__dirname, 'testToLoad.schema.json')
+var testJsonSchemaPathWithRef = path.join(__dirname, 'testWithRef.schema.json')
 
 
 // Tear down after every test.
@@ -322,6 +324,53 @@ exports.testJsonSchemaValidation_success = function (test) {
   new falkor.TestCase('http://falkor.fake/jsonschema')
       .setAsserter(mockTest)
       .validateJson(testJsonSchemaPath)
+      .run()
+}
+
+
+// Tests that JSON that references another schema can fail.
+exports.testJsonSchemaWithRefs_badPattern = function (test) {
+  var mockTest = newMockTestWithExpectedFailure(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/jsonschema')
+      .reply(200, '{"id": 123, "title": "Tést Itëm", "content": { "text": "foo", "length": 3 }}'))
+
+  new falkor.TestCase('http://falkor.fake/jsonschema')
+      .setAsserter(mockTest)
+      .addJsonSchema(testJsonSchemaPathToLoad)
+      .validateJson(testJsonSchemaPathWithRef)
+      .run()
+}
+
+
+// Tests that JSON that references another schema can fail.
+exports.testJsonSchemaWithRefs_missingRef = function (test) {
+  var mockTest = newMockTestWithExpectedFailure(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/jsonschema')
+      .reply(200, '{"id": 123, "title": "Test Item", "content": { "text": "foo", "length": 3 }}'))
+
+  new falkor.TestCase('http://falkor.fake/jsonschema')
+      .setAsserter(mockTest)
+      .validateJson(testJsonSchemaPathWithRef)
+      .run()
+}
+
+
+// Tests that JSON that references another schema passes.
+exports.testJsonSchemaWithRefs_success = function (test) {
+  var mockTest = newMockTestWithNoAssertions(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/jsonschema')
+      .reply(200, '{"id": 123, "title": "Test Item", "content": { "text": "foo", "length": 3 }}'))
+
+  new falkor.TestCase('http://falkor.fake/jsonschema')
+      .setAsserter(mockTest)
+      .addJsonSchema(testJsonSchemaPathToLoad)
+      .validateJson(testJsonSchemaPathWithRef)
       .run()
 }
 

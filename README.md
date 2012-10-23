@@ -152,6 +152,11 @@ Fails the test if the response body *does* match the provided regular expression
 Fails the test if the response body doesn't begin with the provided XSSI prefix. The prefix will
 also be stripped before the response body is parsed as JSON.
 
+#### .addJsonSchema(schemaPath)
+
+Adds a JSON schema (or an array of JSON schema) to be used later by $ref links in validateJson().
+Every schema added using this method needs to have an id property.
+
 #### .validateJson(schemaPath)
 
 Validates the response body against a JSON schema.  The validator is taken from the Chromium project
