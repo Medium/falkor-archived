@@ -89,9 +89,11 @@ change how the request payload will be sent.  See `withPayload`, `withFormEncode
 
 Helper for setting the cookie header.  Can be called multiple times to set multiple cookies.
 
-#### .withPayload(string)
+#### .withPayload(bufferOrUtf8String)
 
-Specifies a string (assumed to be utf8) to be sent as the request payload/body.  Will be sent regardless of HTTP method.
+Specifies the request payload.  It can be either a `Buffer` or a string.  Strings are assumed to be
+UTF-8.  The payload will be sent regardless of HTTP method.  The Content-Length header will also be
+set accordingly.
 
 #### .withFormEncodedPayload(object)
 
