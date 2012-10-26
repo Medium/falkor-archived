@@ -91,7 +91,7 @@ Helper for setting the cookie header.  Can be called multiple times to set multi
 
 #### .withPayload(string)
 
-Specifies a string to be sent as the request payload/body.  Will be sent regardless of HTTP method.
+Specifies a string (assumed to be utf8) to be sent as the request payload/body.  Will be sent regardless of HTTP method.
 
 #### .withFormEncodedPayload(object)
 
