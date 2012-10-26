@@ -101,6 +101,7 @@ exports.testWithFormEncodedPayload = function (test) {
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
+      .matchHeader('Content-Length', 14)
       .post('/testformencoded', 'a=%3D%26&b=xxx')
       .reply(200, ''))
 
@@ -410,6 +411,7 @@ exports.testTemplates = function (test) {
       .put('/templated', 'data')
       .matchHeader('Cookie', 'username=dan')
       .matchHeader('TestHeader', '1234')
+      .matchHeader('Content-Length', 4)
       .reply(200, 'prefix result'))
 
   template.newTestCase('http://falkor.fake/templated')
@@ -434,11 +436,13 @@ exports.testTemplateOverrides = function (test) {
   mockTest.verifyResponse(nock('http://falkor.fake')
       .post('/templated', 'data')
       .matchHeader('TestHeader', '1234')
+      .matchHeader('Content-Length', 4)
       .reply(200, ''))
 
   mockTest.verifyResponse(nock('http://falkor.fake')
       .post('/templated', 'data override')
       .matchHeader('TestHeader', '9876')
+      .matchHeader('Content-Length', 13)
       .reply(200, ''))
 
 
