@@ -44,10 +44,13 @@ exports.testGoogle = falkor.fetch('http://google.com')
     .dump() // Not necessary, but useful for debugging.
 ```
 
-Then to run the tests:
+Then to run the tests you can either use nodeunit or the test runner included with falkor.  The
+falkor test runner is new as of `v1.2.0`, the main difference being that tests will be run in
+parallel.
 
 ```
 nodeunit mytest.js
+node_modules/.bin/falkor mytest.js
 ```
 
 See the `examples` folder for a few other examples.
@@ -184,10 +187,11 @@ exports.testBBC = falkor.fetch('http://www.bbc.co.uk')
 
 ### Other things
 
-#### .dump()
+#### .dump(opt_dumpBody)
 
 Logs out information about the request and response to the console.  Depending on what you are
-requesting this can be quite noisy.  It is recommended you use it for debugging only.
+requesting this can be quite noisy.  It is recommended you use it for debugging only.  By default
+doesn't log response body.
 
 #### .setAsserter()
 
