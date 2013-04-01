@@ -11,7 +11,7 @@
 
 var colors = require('colors')
 var path = require('path')
-var Q = require('Q')
+var Q = require('q')
 var Asserter = require('../lib/asserter')
 
 if (process.env['FALKOR_SOCKETS']) {
