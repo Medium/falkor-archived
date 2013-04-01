@@ -14,6 +14,13 @@ var path = require('path')
 var Q = require('Q')
 var Asserter = require('../lib/asserter')
 
+if (process.env['FALKOR_SOCKETS']) {
+  var numSockets = Number(process.env['FALKOR_SOCKETS'])
+  console.log('Number of sockets:', numSockets)
+  require('http').globalAgent.maxSockets = numSockets
+  require('https').globalAgent.maxSockets = numSockets
+}
+
 var testFiles = process.argv.slice(2)
 var promises = []
 var results = []
