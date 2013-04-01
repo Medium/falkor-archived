@@ -38,7 +38,7 @@ console.log(promises.length + ' test cases discovered, in ' + testFiles.length +
 var timeout = setTimeout(function () {
   console.error('Tests timed out, maybe test.done() was not called.')
   process.exit(1)
-}, 30000)
+}, 90000)
 
 Q.all(promises).then(function () {
   clearTimeout(timeout)
