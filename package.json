@@ -1,6 +1,6 @@
 {
   "name": "falkor",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "keywords": [
     "javascript",
     "nodeunit",
@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "colors": "0.6.0-1",
+    "flags": "0.1.1",
     "nock": "0.17.2",
     "nodeunit": "0.8.0",
     "q": "0.9.2"
