@@ -7,12 +7,26 @@
  *
  * Usage:
  *   ./runner.js [test1.js] [test2.js]
+ *   OR
+ *   ./runner.js --baseUrl=yahoo.com -- [test1.js] [test2.js]
  */
 
 var colors = require('colors')
 var path = require('path')
 var Q = require('q')
 var Asserter = require('../lib/asserter')
+var falkor = require('falkor')
+var flags = require('flags')
+
+flags.defineString('baseUrl', '', 'The base URL for sending requests')
+
+// For backwards compatibility.
+var firstArg = process.argv[2]
+if (firstArg.indexOf('--') != 0) {
+  process.argv.splice(2, 0, '--')
+}
+
+var testFiles = flags.parse()
 
 if (process.env['FALKOR_SOCKETS']) {
   var numSockets = Number(process.env['FALKOR_SOCKETS'])
@@ -21,10 +35,13 @@ if (process.env['FALKOR_SOCKETS']) {
   require('https').globalAgent.maxSockets = numSockets
 }
 
-var testFiles = process.argv.slice(2)
 var promises = []
 var results = []
 var startTime = Date.now()
+
+if (flags.get('baseUrl')) {
+  falkor.setBaseUrl(flags.get('baseUrl'))
+}
 
 for (var i = 0; i < testFiles.length; i++) {
   var test = require(path.join(process.cwd(), testFiles[i]))
