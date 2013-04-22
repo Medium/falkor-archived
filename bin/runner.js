@@ -19,6 +19,7 @@ var falkor = require('falkor')
 var flags = require('flags')
 
 flags.defineString('baseUrl', '', 'The base URL for sending requests')
+flags.defineInteger('maxSockets', 0, 'The max number of sockets to use')
 
 // For backwards compatibility.
 var firstArg = process.argv[2]
@@ -28,8 +29,8 @@ if (firstArg.indexOf('--') != 0) {
 
 var testFiles = flags.parse()
 
-if (process.env['FALKOR_SOCKETS']) {
-  var numSockets = Number(process.env['FALKOR_SOCKETS'])
+var numSockets = flags.get('maxSockets')
+if (numSockets) {
   console.log('Number of sockets:', numSockets)
   require('http').globalAgent.maxSockets = numSockets
   require('https').globalAgent.maxSockets = numSockets
