@@ -20,6 +20,7 @@ var flags = require('flags')
 
 flags.defineString('baseUrl', '', 'The base URL for sending requests')
 flags.defineInteger('maxSockets', 0, 'The max number of sockets to use')
+flags.defineInteger('timeoutSecs', 120, 'The timeout, in seconds')
 
 // For backwards compatibility.
 var firstArg = process.argv[2]
@@ -56,7 +57,7 @@ console.log(promises.length + ' test cases discovered, in ' + testFiles.length +
 var timeout = setTimeout(function () {
   console.error('Tests timed out, maybe test.done() was not called.')
   process.exit(1)
-}, 90000)
+}, flags.get('timeoutSecs') * 1000)
 
 Q.all(promises).then(function () {
   clearTimeout(timeout)
