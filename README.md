@@ -187,6 +187,29 @@ exports.testBBC = falkor.fetch('http://www.bbc.co.uk')
 
 ### Other things
 
+
+#### .chain(fn)
+
+`chain` allows you to run test cases after a previous test has completed.  For example, the first
+test might result in change of a resource, the chained test could check that the change persisted.
+
+`chain` takes a function that will be passed the response object from the original test. It should
+return a falkor TestCase or the node unit compatible function returned by `falkor.fetch`.
+
+Example:
+
+```
+exports.testVote = falkor.fetch('http://mysite.com/some-article/vote')
+    .withMethod('PUT')
+    .chain(function (resp) {
+      return falkor.fetch('http://mysite.com/some-article/')
+          .expectBodyMatches(/\+1/)
+    })
+```
+
+Be cautious in your use of `chain`. It is possible to make slow and hard to debug tests.
+
+
 #### .dump(opt_dumpBody)
 
 Logs out information about the request and response to the console.  Depending on what you are
