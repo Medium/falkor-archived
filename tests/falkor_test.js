@@ -458,6 +458,52 @@ exports.testTemplateOverrides = function (test) {
 }
 
 
+exports.testChaining = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
+  var response2 = nock('http://falkor.fake').get('/two').reply(200, '')
+  var response3 = nock('http://falkor.fake').get('/three').reply(200, '')
+  var response4 = nock('http://falkor.fake').get('/four').reply(200, '')
+
+  new falkor.TestCase('http://falkor.fake/one')
+      .setAsserter(newMockTest(function(assertions) {
+        test.equal(0, assertions.length, 'No assertions should have been run')
+        response1.done()
+        response2.done()
+        response3.done()
+        response4.done()
+        test.done()
+      }))
+      .chain(function (resp) {
+        return new falkor.TestCase('http://falkor.fake/two')
+      })
+      .chain(function (resp) {
+        return falkor.fetch('http://falkor.fake/three')
+            .chain(function (resp) {
+              return falkor.fetch('http://falkor.fake/four')
+            })
+      })
+      .run()
+}
+
+
+exports.testChainingFailure = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
+  var response2 = nock('http://falkor.fake').get('/two').reply(500, '')
+
+  new falkor.TestCase('http://falkor.fake/one')
+      .setAsserter(newMockTest(function(assertions) {
+        test.equal(1, assertions.length, 'There should have been 1 failure')
+        response1.done()
+        response2.done()
+        test.done()
+      }))
+      .chain(function (resp) {
+        return new falkor.TestCase('http://falkor.fake/two').expectStatusCode(200)
+      })
+      .run()
+}
+
+
 // Creates a mock test object that records the assertions that were executed on it.
 function newMockTest(callback) {
   var assertions = []
@@ -476,9 +522,14 @@ function newMockTest(callback) {
       assertions.push({type: 'fail', msg: msg})
     },
     done: function () {
-      // Makes sure there really was a request.
-      if (mockResponse) mockResponse.done()
-      callback(assertions)
+      try {
+        // Makes sure there really was a request.
+        if (mockResponse) mockResponse.done()
+        callback(assertions)
+      } catch (e) {
+        console.error(e)
+        throw e
+      }
     }
   }
 }
