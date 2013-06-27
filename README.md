@@ -184,6 +184,28 @@ exports.testBBC = falkor.fetch('http://www.bbc.co.uk')
     })
 ```
 
+#### .evaluateWithJsonBody(fn)
+
+Adds an evaluator function that will be executed against the response body if it is valid JSON.
+The evaluator is passed the nodeunit test object, which can be used for executing assertions,
+and the JSON object parsed from the body of the response.
+
+This evaluator firsts removes the XSSI prefix, if configured, and parses the response body as
+JSON. If parsing fails the test case will be flagged as a failure.
+
+This evaluator is intended for inspecting the JSON content of a response. If you are interested
+in only checking the structure of the JSON, to ensure it is in the right format, it is
+recommended that you use the schema-based validation, see `.addJsonSchema(schemaPath)` and
+`.validateJson(schemaPath)`.
+
+For example:
+
+```
+exports.testJsonContent = falkor.fetch('https://api.github.com/repos/Obvious/falkor')
+    .evaluateWithJsonBody(function (test, json) {
+      test.equals(json.open_issues_count, 0, 'This evaluator fails if we have work to do.')
+    })
+```
 
 ### Other things
 
