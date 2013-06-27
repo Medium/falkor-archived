@@ -504,6 +504,45 @@ exports.testChainingFailure = function (test) {
 }
 
 
+// Tests that invalid JSON throws a failure.
+exports.testJsonContentValidation_badJson = function (test) {
+  var mockTest = newMockTestWithExpectedFailure(test)
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/json')
+      .reply(200, '{Not: "real json"}'))
+
+  new falkor.TestCase('http://falkor.fake/json')
+      .setAsserter(mockTest)
+      .evaluateWithJsonBody(function (mockTest, json) {
+        test.fail('The function should not be called after JSON parsing fails.')
+        // do nothing, as json parsing will fail before this function is called
+      })
+      .run()
+}
+
+// Tests that valid but wrong JSON throws a failure.
+exports.testJsonContentValidation_wrongJson = function (test) {
+  var mockTest = newMockTest(function (assertions) {
+    test.equals(1, assertions.length, 'There should have been one assertion')
+    test.equals('real json=real json', assertions[0].value, 'The assertion should just check if two strings are the same')
+    test.done()
+  })
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/json')
+      .reply(200, '{"Is": "real json"}'))
+
+  new falkor.TestCase('http://falkor.fake/json')
+      .setAsserter(mockTest)
+      .evaluateWithJsonBody(function (mockTest, json) {
+        mockTest.equals(json['Is'], 'real json', 'The Json object has one key "Is" -> "real json"')
+      })
+      .run()
+}
+
+
+
 // Creates a mock test object that records the assertions that were executed on it.
 function newMockTest(callback) {
   var assertions = []
