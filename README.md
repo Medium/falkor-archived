@@ -210,27 +210,44 @@ exports.testJsonContent = falkor.fetch('https://api.github.com/repos/Obvious/fal
 ### Other things
 
 
-#### .chain(fn)
+#### .then(fn)
 
-`chain` allows you to run test cases after a previous test has completed.  For example, the first
-test might result in change of a resource, the chained test could check that the change persisted.
+`then` allows you to chain together multiple requests. For example, the first
+request might PUT a resource, and then the second request might GET that resource
+to make sure it was written.
 
-`chain` takes a function that will be passed the response object from the original test. It should
-return a falkor TestCase or the node unit compatible function returned by `falkor.fetch`.
+`then` is inspired by, and compatible with, the API for [Q](https://github.com/kriskowal/q)
 
 Example:
 
 ```
 exports.testVote = falkor.fetch('http://mysite.com/some-article/vote')
     .withMethod('PUT')
-    .chain(function (resp) {
+    .then(function (voteResponse) {
+      return Q.delay(100) // wait 100 milliseconds
+    })
+    .then(function () {
       return falkor.fetch('http://mysite.com/some-article/')
           .expectBodyMatches(/\+1/)
     })
+    .then(function (getResponse) {
+      // Assert something about the http://mysite.com/some-article/ response.
+    })
 ```
 
-Be cautious in your use of `chain`. It is possible to make slow and hard to debug tests.
+The callback passed to `then` can return one of three possible types:
 
+* If the callback returns a falkor TestCase, the chain will run the TestCase, wait for
+  it to complete, then pass the response object to the next `then` callback.
+
+* If the callback returns a Q promise, then chain will wait for the promise to complete,
+  then pass the resolved value to the next `then` callback.
+
+* If the callback returns anything else, it will just be passed to the next callback
+  in the chain.
+
+Notably, `then` does not have any sort of error-handling mechanism (like Q's
+`then`), because all errors are handled by Falkor.
 
 #### .dump(opt_dumpBody)
 
@@ -238,19 +255,24 @@ Logs out information about the request and response to the console.  Depending o
 requesting this can be quite noisy.  It is recommended you use it for debugging only.  By default
 doesn't log response body.
 
-#### .setAsserter()
+#### .setAsserter() and .done()
 
-By default Falkor uses the nodeunit test object to execute assertions on.  In some cases you might
-want to provide your own assertion object, but make sure to support the full interface.
+By default, Falkor test cases are nodeunit-compatible functions.
 
-If you want to use Falkor without nodeunit the best way is to construct and run a TestCase directly:
+In some cases, you might want to provide your own assertion object. It should
+implement all the methods of the [NodeJS assert
+API](http://nodejs.org/api/assert.html) and a `done` method.
+
+The best way is to construct and run a TestCase directly. `setAsserter`
+populates the assertion object.  `done` kicks off the request, waits until the
+assertions finish, then calls `customAsserter.done()`.
 
 ```
 new falkor.TestCase(url)
     .withMethod('POST')
     .expectBodyMatches(/fish and chips/)
     .setAsserter(customAsserter)
-    .run()
+    .done()
 ```
 
 #### falkor.setBaseUrl(url)
@@ -299,6 +321,7 @@ notStrictEqual(actual, expected, [message]) - Tests strict non-equality ( !== ).
 throws(block, [error], [message]) - Expects block to throw an error.
 doesNotThrow(block, [error], [message]) - Expects block not to throw an error.
 ifError(value) - Tests if value is not a false value, throws if it is a true value.
+done() - Marks the test complete.
 ```
 
 Testing
