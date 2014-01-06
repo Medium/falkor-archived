@@ -16,6 +16,7 @@
  */
 
 var falkor = require('../lib/falkor')
+var Q = require('q')
 
 // Mocks out HTTP library.  See https://github.com/flatiron/nock
 var nock = require('nock')
@@ -59,7 +60,7 @@ exports.testWithMethod = function (test) {
   new falkor.TestCase('http://falkor.fake/testmethod')
       .withMethod('POST')
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -75,7 +76,7 @@ exports.testSettingHeaders = function (test) {
   new falkor.TestCase('http://falkor.fake/testheaders')
       .withHeader('Test-Header', 'value')
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -91,7 +92,7 @@ exports.testWithPayload = function (test) {
       .withMethod('POST')
       .withPayload('this is a test')
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -109,7 +110,7 @@ exports.testWithFormEncodedPayload = function (test) {
       .withMethod('POST')
       .withFormEncodedPayload({a: '=&', b: 'xxx'})
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -126,7 +127,7 @@ exports.testWithJsonPayload = function (test) {
       .withMethod('POST')
       .withJsonPayload({a: 123, b: 'c'})
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -145,7 +146,7 @@ exports.testSetCookie = function (test) {
       .withCookie('two', 'another-cookie', {secure: true})
       .withCookie('three', 'xxx', {expires: testDate.getTime(), path: '/cookies'})
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -170,7 +171,7 @@ exports.testBasicEvaluators = function (test) {
       .evaluate(function (mockTest, res) {
         mockTest.ok(!!res, 'Response should exist')
       })
-      .run()
+      .done()
 }
 
 
@@ -186,7 +187,7 @@ exports.testExpectStatusCode = function (test) {
   new falkor.TestCase('http://falkor.fake/status')
       .setAsserter(mockTest)
       .expectStatusCode(401)
-      .run()
+      .done()
 }
 
 
@@ -202,7 +203,7 @@ exports.testExpectHeader = function (test) {
   new falkor.TestCase('http://falkor.fake/headers')
       .setAsserter(mockTest)
       .expectHeader('Server', 'Apache')
-      .run()
+      .done()
 }
 
 
@@ -220,7 +221,7 @@ exports.testExpectContentType = function (test) {
   new falkor.TestCase('http://falkor.fake/contenttype')
       .setAsserter(mockTest)
       .expectContentType('text/gibberish', 'exotic')
-      .run()
+      .done()
 }
 
 
@@ -235,7 +236,7 @@ exports.testExpectBodyMatches_failureCase = function (test) {
   new falkor.TestCase('http://falkor.fake/bodymatching')
       .setAsserter(mockTest)
       .expectBodyMatches(/fish and chips/)
-      .run()
+      .done()
 }
 
 
@@ -250,7 +251,7 @@ exports.testExpectBodyMatches_successCase = function (test) {
   new falkor.TestCase('http://falkor.fake/bodymatching')
       .setAsserter(mockTest)
       .expectBodyMatches(/fish and chips/)
-      .run()
+      .done()
 }
 
 
@@ -265,7 +266,7 @@ exports.testExpectBodyDoesNotMatch_failureCase = function (test) {
   new falkor.TestCase('http://falkor.fake/bodymatching')
       .setAsserter(mockTest)
       .expectBodyDoesNotMatch(/the/)
-      .run()
+      .done()
 }
 
 
@@ -280,7 +281,7 @@ exports.testExpectBodyDoesNotMatch_successCase = function (test) {
   new falkor.TestCase('http://falkor.fake/bodymatching')
       .setAsserter(mockTest)
       .expectBodyDoesNotMatch(/fish and chips/)
-      .run()
+      .done()
 }
 
 
@@ -295,7 +296,7 @@ exports.testJsonSchemaValidation_badJson = function (test) {
   new falkor.TestCase('http://falkor.fake/jsonschema')
       .setAsserter(mockTest)
       .validateJson(testJsonSchemaPath)
-      .run()
+      .done()
 }
 
 
@@ -310,7 +311,7 @@ exports.testJsonSchemaValidation_badStructure = function (test) {
   new falkor.TestCase('http://falkor.fake/jsonschema')
       .setAsserter(mockTest)
       .validateJson(testJsonSchemaPath)
-      .run()
+      .done()
 }
 
 
@@ -325,7 +326,7 @@ exports.testJsonSchemaValidation_success = function (test) {
   new falkor.TestCase('http://falkor.fake/jsonschema')
       .setAsserter(mockTest)
       .validateJson(testJsonSchemaPath)
-      .run()
+      .done()
 }
 
 
@@ -341,7 +342,7 @@ exports.testJsonSchemaWithRefs_badPattern = function (test) {
       .setAsserter(mockTest)
       .addJsonSchema(testJsonSchemaPathToLoad)
       .validateJson(testJsonSchemaPathWithRef)
-      .run()
+      .done()
 }
 
 
@@ -356,7 +357,7 @@ exports.testJsonSchemaWithRefs_missingRef = function (test) {
   new falkor.TestCase('http://falkor.fake/jsonschema')
       .setAsserter(mockTest)
       .validateJson(testJsonSchemaPathWithRef)
-      .run()
+      .done()
 }
 
 
@@ -372,7 +373,7 @@ exports.testJsonSchemaWithRefs_success = function (test) {
       .setAsserter(mockTest)
       .addJsonSchema(testJsonSchemaPathToLoad)
       .validateJson(testJsonSchemaPathWithRef)
-      .run()
+      .done()
 }
 
 
@@ -386,7 +387,7 @@ exports.testBaseUrl = function (test) {
   falkor.setBaseUrl('http://some.other.url.com/')
   new falkor.TestCase('/base/url')
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -416,7 +417,7 @@ exports.testTemplates = function (test) {
 
   template.newTestCase('http://falkor.fake/templated')
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
@@ -448,41 +449,86 @@ exports.testTemplateOverrides = function (test) {
 
   template.newTestCase('http://falkor.fake/templated')
       .setAsserter(mockTest)
-      .run()
+      .done()
 
   template.newTestCase('http://falkor.fake/templated')
       .withHeader('TestHeader', '9876')
       .withPayload('data override')
       .setAsserter(mockTest)
-      .run()
+      .done()
 }
 
 
 exports.testChaining = function (test) {
-  var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
-  var response2 = nock('http://falkor.fake').get('/two').reply(200, '')
-  var response3 = nock('http://falkor.fake').get('/three').reply(200, '')
-  var response4 = nock('http://falkor.fake').get('/four').reply(200, '')
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, 'one')
+  var response2 = nock('http://falkor.fake').get('/two').reply(200, 'two')
+  var response3 = nock('http://falkor.fake').get('/three').reply(200, 'three')
+  var response4 = nock('http://falkor.fake').get('/four').reply(200, 'four')
 
+  var mockTest = newMockTest(function(assertions) {
+    test.equal(0, assertions.length, 'No assertions should have been run')
+    response1.done()
+    response2.done()
+    response3.done()
+    response4.done()
+    test.done()
+  })
   new falkor.TestCase('http://falkor.fake/one')
-      .setAsserter(newMockTest(function(assertions) {
-        test.equal(0, assertions.length, 'No assertions should have been run')
-        response1.done()
-        response2.done()
-        response3.done()
-        response4.done()
-        test.done()
-      }))
-      .chain(function (resp) {
+      .setAsserter(mockTest)
+      .then(function (resp) {
+        test.equal(resp.body, 'one')
         return new falkor.TestCase('http://falkor.fake/two')
       })
-      .chain(function (resp) {
+      .then(function (resp) {
+        test.equal(resp.body, 'two')
         return falkor.fetch('http://falkor.fake/three')
-            .chain(function (resp) {
+            .then(function (resp) {
+              test.equal(resp.body, 'three')
               return falkor.fetch('http://falkor.fake/four')
             })
       })
-      .run()
+      .done()
+}
+
+
+exports.testChainingWithOtherPromiseTypes = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, 'one')
+  var response2 = nock('http://falkor.fake').get('/two').reply(200, 'two')
+  var response3 = nock('http://falkor.fake').get('/three').reply(200, 'three')
+  var response4 = nock('http://falkor.fake').get('/four').reply(200, 'four')
+
+  var mockTest = newMockTest(function(assertions) {
+    test.equal(0, assertions.length, 'No assertions should have been run')
+    response1.done()
+    response2.done()
+    response3.done()
+    response4.done()
+    test.done()
+  })
+  new falkor.TestCase('http://falkor.fake/one')
+      .setAsserter(mockTest)
+      .then(function (resp) {
+        return resp.body
+      })
+      .then(function (resp) {
+        test.equal(resp, 'one')
+        return new falkor.TestCase('http://falkor.fake/two')
+        .then(function (resp) {
+          return resp.body
+        })
+      })
+      .then(function (resp) {
+        test.equal(resp, 'two')
+        return falkor.fetch('http://falkor.fake/three')
+            .then(function (resp) {
+              return Q.delay(1).thenResolve(resp.body)
+            })
+            .then(function (resp) {
+              test.equal(resp, 'three')
+              return falkor.fetch('http://falkor.fake/four')
+            })
+      })
+      .done()
 }
 
 
@@ -490,17 +536,52 @@ exports.testChainingFailure = function (test) {
   var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
   var response2 = nock('http://falkor.fake').get('/two').reply(500, '')
 
+  var mockTest = newMockTest(function(assertions) {
+    test.equal(1, assertions.length, 'There should have been 1 failure')
+    response1.done()
+    response2.done()
+    test.done()
+  })
   new falkor.TestCase('http://falkor.fake/one')
-      .setAsserter(newMockTest(function(assertions) {
-        test.equal(1, assertions.length, 'There should have been 1 failure')
-        response1.done()
-        response2.done()
-        test.done()
-      }))
-      .chain(function (resp) {
+      .setAsserter(mockTest)
+      .then(function (resp) {
         return new falkor.TestCase('http://falkor.fake/two').expectStatusCode(200)
       })
-      .run()
+      .done()
+}
+
+
+exports.testChainingReject = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
+
+  var mockTest = newMockTest(function(assertions) {
+    test.equal(1, assertions.length, 'There should have been 1 failure')
+    response1.done()
+    test.done()
+  })
+  new falkor.TestCase('http://falkor.fake/one')
+      .setAsserter(mockTest)
+      .then(function (resp) {
+        return Q.reject('Expected error')
+      })
+      .done()
+}
+
+
+exports.testChainingThrow = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
+
+  var mockTest = newMockTest(function(assertions) {
+    test.equal(1, assertions.length, 'There should have been 1 failure')
+    response1.done()
+    test.done()
+  })
+  new falkor.TestCase('http://falkor.fake/one')
+      .setAsserter(mockTest)
+      .then(function (resp) {
+        throw new Error('Expected error')
+      })
+      .done()
 }
 
 
@@ -518,7 +599,7 @@ exports.testJsonContentValidation_badJson = function (test) {
         test.fail('The function should not be called after JSON parsing fails.')
         // do nothing, as json parsing will fail before this function is called
       })
-      .run()
+      .done()
 }
 
 // Tests that valid but wrong JSON throws a failure.
@@ -538,7 +619,7 @@ exports.testJsonContentValidation_wrongJson = function (test) {
       .evaluateWithJsonBody(function (mockTest, json) {
         mockTest.equals(json['Is'], 'real json', 'The Json object has one key "Is" -> "real json"')
       })
-      .run()
+      .done()
 }
 
 
