@@ -19,7 +19,7 @@ var falkor = require('falkor')
 var flags = require('flags')
 
 flags.defineString('baseUrl', '', 'The base URL for sending requests')
-flags.defineInteger('maxSockets', 0, 'The max number of sockets to use')
+flags.defineBoolean('serial', false, 'Run the tests in serial instead of in parallel')
 flags.defineInteger('timeoutSecs', 120, 'The timeout, in seconds')
 
 // For backwards compatibility.
@@ -30,36 +30,41 @@ if (firstArg.indexOf('--') != 0) {
 
 var testFiles = flags.parse()
 
-var numSockets = flags.get('maxSockets')
-if (numSockets) {
-  console.log('Number of sockets:', numSockets)
-  require('http').globalAgent.maxSockets = numSockets
-  require('https').globalAgent.maxSockets = numSockets
-}
-
-var promises = []
+var serialChain = Q.resolve(true)
+var parallelPromises = []
 var results = []
 var startTime = Date.now()
+var serial = flags.get('serial')
 
 if (flags.get('baseUrl')) {
   falkor.setBaseUrl(flags.get('baseUrl'))
 }
 
+var count = 0
 for (var i = 0; i < testFiles.length; i++) {
   var test = require(path.join(process.cwd(), testFiles[i]))
   for (var key in test) {
-    promises.push(runTest(testFiles[i], key, test[key]))
+    var fn = runTest.bind(null, testFiles[i], key, test[key])
+    if (serial) {
+      serialChain = serialChain.then(fn)
+    } else {
+      parallelPromises.push(fn())
+    }
+    count++
   }
 }
 
-console.log(promises.length + ' test cases discovered, in ' + testFiles.length + ' files.')
+console.log(count + ' test cases discovered, in ' + testFiles.length + ' files.')
 
 var timeout = setTimeout(function () {
   console.error('Tests timed out, maybe test.done() was not called.')
   process.exit(1)
 }, flags.get('timeoutSecs') * 1000)
 
-Q.all(promises).then(function () {
+serialChain.then(function () {
+  return Q.all(parallelPromises)
+})
+.then(function () {
   clearTimeout(timeout)
   var time = ' (' + (Date.now() - startTime) + 'ms)'
   if (results.length) {
