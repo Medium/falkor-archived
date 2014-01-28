@@ -21,6 +21,9 @@ var flags = require('flags')
 flags.defineString('baseUrl', '', 'The base URL for sending requests')
 flags.defineBoolean('serial', false, 'Run the tests in serial instead of in parallel')
 flags.defineInteger('timeoutSecs', 120, 'The timeout, in seconds')
+flags.defineString('testPattern', '',
+    'A case-insensitive regular expression. ' +
+    'We will only run a test if the file or test name matches')
 
 // For backwards compatibility.
 var firstArg = process.argv[2]
@@ -41,9 +44,12 @@ if (flags.get('baseUrl')) {
 }
 
 var count = 0
+var matcher = new RegExp(flags.get('testPattern') || '', 'i')
 for (var i = 0; i < testFiles.length; i++) {
   var test = require(path.join(process.cwd(), testFiles[i]))
   for (var key in test) {
+    if (!matcher.test(key) && !matcher.test(testFiles[i])) continue
+
     var fn = runTest.bind(null, testFiles[i], key, test[key])
     if (serial) {
       serialChain = serialChain.then(fn)
