@@ -306,6 +306,26 @@ exports.testFormRequiresLogin_withCookies = formTest.fetch('/form')
     .expectStatusCode(200)
 ```
 
+You can `clone()` test templates to create other templates.
+
+```
+var formTestWithHeaderAuth = formTest.clone()
+    .withHeader('Auth-Header', '1234')
+
+exports.testFormRequiresLogin_authHeader = formTestWithHeaderAuth.fetch('/form')
+    .expectStatusCode(200)
+```
+
+And you can `mixin()` multiple test templates to build composite test cases:
+
+```
+exports.testOtherForm = falkor.fetch('/other/form')
+    .mixin(formTest)
+    .mixin(checkFormResultsTest)
+    .withHeader('X-Form', '1234')
+```
+
+
 ### Node unit quick reference
 
 Especially helpful if you are writing your own evaluator functions or asserter:
