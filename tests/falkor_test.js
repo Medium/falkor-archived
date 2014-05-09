@@ -459,6 +459,39 @@ exports.testTemplateOverrides = function (test) {
 }
 
 
+exports.testMixin = function (test) {
+  var template1 = falkor.newTestTemplate()
+      .withMethod('put')
+      .withHeader('TestHeader', '1234')
+      .withPayload('data')
+  var template2 = falkor.newTestTemplate()
+      .withCookie('username', 'dan')
+      .expectXssiPrefix('prefix')
+      .expectBodyMatches(/result/)
+
+  var mockTest = newMockTest(function (assertions) {
+    test.equals(2, assertions.length, 'There should have been two assertions')
+    test.equals('prefix=prefix', assertions[0].value, 'First assertion should have checked prefix')
+    test.equals('ok', assertions[1].type, '2nd assertion should have been "ok"')
+    test.equals('true', assertions[1].value, '2nd assertion should have been matched "true"')
+    test.done()
+  })
+
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .put('/templated', 'data')
+      .matchHeader('Cookie', 'username=dan')
+      .matchHeader('TestHeader', '1234')
+      .matchHeader('Content-Length', 4)
+      .reply(200, 'prefix result'))
+
+  falkor.fetch('http://falkor.fake/templated')
+      .setAsserter(mockTest)
+      .mixin(template1)
+      .mixin(template2)
+      .done()
+}
+
+
 exports.testChaining = function (test) {
   var response1 = nock('http://falkor.fake').get('/one').reply(200, 'one')
   var response2 = nock('http://falkor.fake').get('/two').reply(200, 'two')
