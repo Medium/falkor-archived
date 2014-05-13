@@ -74,6 +74,16 @@ tests will fail.
 
 ### Configuring the request
 
+#### .withBaseUrl(number)
+
+Sets the base URL from which other URLs are resolved.  This still allows you to specify absolute
+URLs in specific test methods but relative URLs will be resolved accordingly.
+
+#### .withRootSchemaPath(number)
+
+Sets the base path for where schemas should be resolved from.  e.g. to avoid having to specify
+`path.join(__dirname, 'some-schema.json')` repeatedly.
+
 #### .withMethod(httpMethod)
 
 Specifies the HTTP method to use when making the request.
@@ -107,6 +117,10 @@ object.  This method will also set the Content-Type header to `application/x-www
 
 Sets the request payload to be a JSON string.  This method will also set the Content-Type header to
 `application/json`.
+
+#### .withTimeoutMs(number)
+
+Sets the timeout for the request, in milliseconds.
 
 
 ### Setting expectations
@@ -277,10 +291,14 @@ new falkor.TestCase(url)
 
 #### falkor.setBaseUrl(url)
 
+_deprecated in favor of options#withBaseUrl_
+
 Sets the base URL from which other URLs are resolved.  This still allows you to specify absolute
 URLs in specific test methods but relative URLs will be resolved accordingly.
 
 #### falkor.setRootSchemaPath(path)
+
+_deprecated in favor of options#withRootSchemaPath_
 
 Sets the base path for where schemas should be resolved from.  e.g. to avoid having to specify
 `path.join(__dirname, 'some-schema.json')` repeatedly.
@@ -295,6 +313,7 @@ Example:
 
 ```
 var formTest = falkor.newTestTemplate()
+    .withBaseUrl('http://falkor/')
     .withMethod('POST')
     .withFormEncodedPayload(frmData)
 
