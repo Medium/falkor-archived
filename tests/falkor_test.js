@@ -564,6 +564,27 @@ exports.testChainingWithOtherPromiseTypes = function (test) {
       .done()
 }
 
+exports.testTimeout = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, 'one')
+
+  var mockTest = newMockTest(function(assertions) {
+    response1.done()
+    test.done()
+  })
+  new falkor.TestCase('http://falkor.fake/one')
+      .withTimeoutMs(1)
+      .setAsserter(mockTest)
+      .then(function (resp) {
+        return Q.delay(1000)
+      })
+      .then(function () {
+        test.fail('Expected error')
+      }, function (e) {
+        test.equal('Timed out after 1 ms', e.message)
+      })
+      .done()
+}
+
 
 exports.testChainingFailure = function (test) {
   var response1 = nock('http://falkor.fake').get('/one').reply(200, '')
