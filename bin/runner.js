@@ -63,7 +63,7 @@ for (var i = 0; i < testFiles.length; i++) {
 console.log(count + ' test cases discovered, in ' + testFiles.length + ' files.')
 
 var timeout = setTimeout(function () {
-  console.error('Tests timed out, maybe test.done() was not called.')
+  console.error('FAILURE: Tests timed out, maybe test.done() was not called.'.red)
   process.exit(1)
 }, flags.get('timeoutSecs') * 1000)
 
