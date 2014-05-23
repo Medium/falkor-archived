@@ -1,7 +1,7 @@
 Falkor
 ======
 
-[![Build Status](https://secure.travis-ci.org/Obvious/falkor.png)](http://travis-ci.org/Obvious/falkor)
+[![Build Status](https://secure.travis-ci.org/Medium/falkor.png)](http://travis-ci.org/Medium/falkor)
 
 A HTTP level functional testing library using [nodejs](http://nodejs.org) and
 [nodeunit](https://github.com/caolan/nodeunit).
