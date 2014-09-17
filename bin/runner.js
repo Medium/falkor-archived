@@ -33,7 +33,7 @@ if (firstArg.indexOf('--') != 0) {
 
 var testFiles = flags.parse()
 
-var serialChain = Q.resolve(true)
+var serialChain = Q(true)
 var parallelPromises = []
 var results = []
 var startTime = Date.now()

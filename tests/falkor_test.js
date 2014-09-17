@@ -518,6 +518,9 @@ exports.testChaining = function (test) {
             .then(function (resp) {
               test.equal(resp.body, 'three')
               return falkor.fetch('http://falkor.fake/four')
+                  .then(function (resp) {
+                    test.equal(resp.body, 'four')
+                  })
             })
       })
       .done()

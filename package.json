@@ -1,6 +1,6 @@
 {
   "name": "falkor",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "keywords": [
     "javascript",
     "nodeunit",
@@ -42,11 +42,11 @@
     "test": "./node_modules/.bin/nodeunit ./tests/falkor_test.js"
   },
   "dependencies": {
-    "colors": "0.6.0-1",
-    "flags": "0.1.1",
-    "nock": "0.17.2",
-    "nodeunit": "0.8.0",
-    "q": "0.9.7"
+    "colors": "0.6.2",
+    "flags": "0.1.2",
+    "nock": "0.47.0",
+    "nodeunit": "0.9.0",
+    "q": "2.0.2"
   }
   , "main": "lib/falkor.js"
 }
