@@ -1,7 +1,7 @@
 Falkor
 ======
 
-[![Build Status](https://secure.travis-ci.org/Obvious/falkor.png)](http://travis-ci.org/Obvious/falkor)
+[![Build Status](https://secure.travis-ci.org/Medium/falkor.png)](http://travis-ci.org/Medium/falkor)
 
 A HTTP level functional testing library using [nodejs](http://nodejs.org) and
 [nodeunit](https://github.com/caolan/nodeunit).
@@ -58,7 +58,7 @@ See the `examples` folder for a few other examples.
 Changes
 -------
 
-Head on over to the wiki to see [what changed](https://github.com/Obvious/falkor/wiki/Change-Log)
+Head on over to the wiki to see [what changed](https://github.com/Medium/falkor/wiki/Change-Log)
 between NPM package versions.
 
 Reference
@@ -215,7 +215,7 @@ recommended that you use the schema-based validation, see `.addJsonSchema(schema
 For example:
 
 ```
-exports.testJsonContent = falkor.fetch('https://api.github.com/repos/Obvious/falkor')
+exports.testJsonContent = falkor.fetch('https://api.github.com/repos/Medium/falkor')
     .evaluateWithJsonBody(function (test, json) {
       test.equals(json.open_issues_count, 0, 'This evaluator fails if we have work to do.')
     })
@@ -378,9 +378,9 @@ Contributing
 ------------
 
 Questions, comments, bug reports, and pull requests are all welcome.  Submit them at
-[the project on GitHub](https://github.com/Obvious/falkor/).  If you haven't contributed to an
-[Obvious](http://github.com/Obvious/) project before please head over to the
-[Open Source Project](https://github.com/Obvious/open-source#note-to-external-contributors) and fill
+[the project on GitHub](https://github.com/Medium/falkor/).  If you haven't contributed to an
+[Obvious](http://github.com/Medium/) project before please head over to the
+[Open Source Project](https://github.com/Medium/open-source#note-to-external-contributors) and fill
 out an OCLA (it should be pretty painless).
 
 Bug reports that include steps-to-reproduce (including code) are the
