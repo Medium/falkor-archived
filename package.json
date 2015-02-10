@@ -1,6 +1,6 @@
 {
   "name": "falkor",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "keywords": [
     "javascript",
     "nodeunit",
@@ -9,10 +9,10 @@
     "functional"
   ],
   "description": "HTTP Level Functional Testing Library",
-  "homepage": "https://github.com/Obvious/falkor",
+  "homepage": "https://github.com/Medium/falkor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Obvious/falkor.git"
+    "url": "https://github.com/Medium/falkor.git"
   },
   "licenses": [
     {

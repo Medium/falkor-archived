@@ -75,6 +75,11 @@ serialChain.then(function () {
   var time = ' (' + (Date.now() - startTime) + 'ms)'
   if (results.length) {
     console.log(('FINISHED WITH ' + results.length + ' FAILURES').red + time)
+
+    console.log(('\nFailed tests:\n' + results.map(function (result) {
+      return result.file + ':' + result.name
+    }).join('\n')).red)
+
     process.exit(1)
   } else {
     console.log('No errors, good job!'.green + time)
