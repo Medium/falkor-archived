@@ -49,6 +49,52 @@ exports.testRequestFailures = function (test) {
 }
 
 
+// Tests that the optional setup function gets called before the test, when defined
+exports.testUsingSetupWithRegularFunction = function (test) {
+  var mockTest = newMockTestWithNoAssertions(test)
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/testsetupfunction')
+      .reply(200, ''))
+
+  var setupVar = null
+  var setupFn = function () {
+    setupVar = 1
+  }
+
+  new falkor.TestCase('http://falkor.fake/testsetupfunction')
+      .usingSetup(setupFn)
+      .setAsserter(mockTest)
+      .then(function() {
+        test.equal(1, setupVar)
+      })
+      .done()
+}
+
+
+// Tests that the optional setup function gets called before the test, when defined
+exports.testUsingSetupWithPromiseFunction = function (test) {
+  var mockTest = newMockTestWithNoAssertions(test)
+  mockTest.verifyResponse(nock('http://falkor.fake')
+      .get('/testsetuppromise')
+      .reply(200, ''))
+
+  var setupVar = null
+  var setupFn = function () {
+    return Q.try(function () {
+      setupVar = 1
+    })
+  }
+
+  new falkor.TestCase('http://falkor.fake/testsetuppromise')
+      .usingSetup(setupFn)
+      .setAsserter(mockTest)
+      .then(function() {
+        test.equal(1, setupVar)
+      })
+      .done()
+}
+
+
 // Tests that calling 'withMethod' actually changes the HTTP Method of the generated request.
 exports.testWithMethod = function (test) {
   var mockTest = newMockTestWithNoAssertions(test)
