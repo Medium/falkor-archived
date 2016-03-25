@@ -1,6 +1,6 @@
 {
   "name": "falkor",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "keywords": [
     "javascript",
     "nodeunit",
@@ -46,7 +46,7 @@
     "flags": "0.1.2",
     "nock": "0.47.0",
     "nodeunit": "0.9.0",
-    "q": "2.0.2"
+    "q": "2.0.3"
   }
   , "main": "lib/falkor.js"
 }
