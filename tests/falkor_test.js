@@ -506,7 +506,12 @@ exports.testTemplateOverrides = function (test) {
 
 
 exports.testMixin = function (test) {
+  var setupValue = 0
+  var setupFunction = function () {
+    setupValue = 1
+  }
   var template1 = falkor.newTestTemplate()
+      .usingSetup(setupFunction)
       .withMethod('put')
       .withHeader('TestHeader', '1234')
       .withPayload('data')
@@ -516,6 +521,7 @@ exports.testMixin = function (test) {
       .expectBodyMatches(/result/)
 
   var mockTest = newMockTest(function (assertions) {
+    test.equals(1, setupValue, 'The setup function should have executed')
     test.equals(2, assertions.length, 'There should have been two assertions')
     test.equals('prefix=prefix', assertions[0].value, 'First assertion should have checked prefix')
     test.equals('ok', assertions[1].type, '2nd assertion should have been "ok"')
