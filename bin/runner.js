@@ -45,11 +45,33 @@ if (flags.get('baseUrl')) {
 
 var count = 0
 var matcher = new RegExp(flags.get('testPattern') || '', 'i')
+
 for (var i = 0; i < testFiles.length; i++) {
   var test = require(path.join(process.cwd(), testFiles[i]))
+
+  // Before is a special function that gets executed once before all tests
+  var beforeFn = test.before
+  delete test.before
+
+  // Before each is similar but runs before each test
+  var beforeEachFn = test.beforeEach
+  delete test.beforeEach
+
   for (var key in test) {
     if (!matcher.test(key) && !matcher.test(testFiles[i])) continue
-
+    // for each test file, place 'before' in the chain before actual tests
+    if (beforeFn) {
+      if (serial) {
+        serialChain = serialChain.then(beforeFn.bind(null, testFiles[i]))
+        beforeFn = null
+      } else {
+        console.log('WARNING: Before-all function ignored in parallel mode'.orange)
+      }
+    }
+    // similarly, attach 'before' as setup function for each test
+    if (beforeEachFn) {
+      test[key].usingSetup(beforeEachFn.bind(null, testFiles[i], key))
+    }
     var fn = runTest.bind(null, testFiles[i], key, test[key])
     if (serial) {
       serialChain = serialChain.then(fn)
