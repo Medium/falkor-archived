@@ -694,6 +694,34 @@ exports.testChainingThrow = function (test) {
 }
 
 
+exports.testChainingThrowAfterRequest = function (test) {
+  var response1 = nock('http://falkor.fake').get('/one').reply(200, 'one')
+  var response2 = nock('http://falkor.fake').get('/two').reply(200, 'two')
+
+  var mockTest = newMockTest(function(assertions) {
+    test.equal(1, assertions.length, 'There should have been 1 failure')
+    test.equal(0, assertions[0].msg.indexOf('Error: MyError'))
+    response1.done()
+    response2.done()
+    test.done()
+  })
+  var fn = new falkor.TestCase('http://falkor.fake/one')
+      .setAsserter(mockTest)
+      .toNodeUnitFn()
+      .then(function (resp) {
+        test.equal(resp.body, 'one')
+
+        // We use falkor.fetch here, because we want to make sure that the
+        // outer setAsserter gets propagated to the inner setAsserter.
+        return falkor.fetch('http://falkor.fake/two')
+          .evaluate(function () {
+            throw new Error('MyError')
+          })
+      })
+  fn(mockTest)
+}
+
+
 // Tests that invalid JSON throws a failure.
 exports.testJsonContentValidation_badJson = function (test) {
   var mockTest = newMockTestWithExpectedFailure(test)
