@@ -17,6 +17,7 @@ var Q = require('q')
 var Asserter = require('../lib/asserter')
 var falkor = require('falkor')
 var flags = require('flags')
+var fs = require('fs')
 
 flags.defineString('baseUrl', '', 'The base URL for sending requests')
 flags.defineBoolean('serial', false, 'Run the tests in serial instead of in parallel')
@@ -24,6 +25,7 @@ flags.defineInteger('timeoutSecs', 120, 'The timeout, in seconds')
 flags.defineString('testPattern', '',
     'A case-insensitive regular expression. ' +
     'We will only run a test if the file or test name matches')
+flags.defineString('certAuthority', '', 'File containing a custom CA for https requests')
 
 // For backwards compatibility.
 var firstArg = process.argv[2]
@@ -41,6 +43,10 @@ var serial = flags.get('serial')
 
 if (flags.get('baseUrl')) {
   falkor.setBaseUrl(flags.get('baseUrl'))
+}
+
+if (flags.get('certAuthority')) {
+  falkor.setCertAuthority(fs.readFileSync(flags.get('certAuthority')))
 }
 
 var count = 0

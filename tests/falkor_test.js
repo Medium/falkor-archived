@@ -49,6 +49,20 @@ exports.testRequestFailures = function (test) {
 }
 
 
+// Tests that an SSL requests uses https
+exports.testSsl = function (test) {
+  var mockTest = newMockTestWithNoAssertions(test)
+
+  mockTest.verifyResponse(nock('https://falkor.fake:8080')
+      .get('/secure')
+      .reply(200, ''))
+
+  new falkor.TestCase('https://falkor.fake:8080/secure')
+    .setAsserter(mockTest)
+    .done()
+}
+
+
 // Tests that the optional setup function gets called before the test, when defined
 exports.testUsingSetupWithRegularFunction = function (test) {
   var mockTest = newMockTestWithNoAssertions(test)
